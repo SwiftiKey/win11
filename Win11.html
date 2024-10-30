@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catch Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url('https://navikur.ru/wp-content/uploads/c/e/1/ce1677aa19b5b9fb277f4cdda497fdd7.png') no-repeat center center fixed;
+            background-size: cover;
+        }
+        canvas {
+            background: rgba(255, 255, 255, 0.5);
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let player = {
+            x: canvas.width / 2 - 15,
+            y: canvas.height - 30,
+            width: 30,
+            height: 30,
+            dx: 0
+        };
+
+        let fallingObject = {
+            x: Math.random() * canvas.width,
+            y: 0,
+            width: 20,
+            height: 20,
+            dy: 2
+        };
+
+        let score = 0;
+
+        function drawPlayer() {
+            ctx.fillStyle = "blue";
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+        }
+
+        function drawFallingObject() {
+            ctx.fillStyle = "red";
+            ctx.fillRect(fallingObject.x, fallingObject.y, fallingObject.width, fallingObject.height);
+        }
+
+        function clear() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function movePlayer() {
+            player.x += player.dx;
+
+            if (player.x < 0) {
+                player.x = 0;
+            }
+
+            if (player.x + player.width > canvas.width) {
+                player.x = canvas.width - player.width;
+            }
+        }
+
+        function moveFallingObject() {
+            fallingObject.y += fallingObject.dy;
+
+            if (fallingObject.y + fallingObject.height > canvas.height) {
+                fallingObject.y = 0;
+                fallingObject.x = Math.random() * canvas.width;
+            }
+        }
+
+        function detectCollision() {
+            if (fallingObject.y + fallingObject.height > player.y &&
+                fallingObject.y < player.y + player.height &&
+                fallingObject.x < player.x + player.width &&
+                fallingObject.x + fallingObject.width > player.x) {
+                score++;
+                fallingObject.y = 0;
+                fallingObject.x = Math.random() * canvas.width;
+            }
+        }
+
+        function update() {
+            clear();
+            drawPlayer();
+            drawFallingObject();
+            movePlayer();
+            moveFallingObject();
+            detectCollision();
+
+            ctx.fillStyle = "black";
+            ctx.font = "20px Arial";
+            ctx.fillText("Score: " + score, 10, 20);
+
+            requestAnimationFrame(update);
+        }
+
+        function keyDown(e) {
+            if (e.key === "ArrowRight" || e.key === "Right") {
+                player.dx = 5;
+            } else if (e.key === "ArrowLeft" || e.key === "Left") {
+                player.dx = -5;
+            }
+        }
+
+        function keyUp(e) {
+            if (e.key === "ArrowRight" || e.key === "Right" || e.key === "ArrowLeft" || e.key === "Left") {
+                player.dx = 0;
+            }
+        }
+
+        document.addEventListener("keydown", keyDown);
+        document.addEventListener("keyup", keyUp);
+
+        update();
+    </script>
+</body>
+</html>
